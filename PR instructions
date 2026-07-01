@@ -1,0 +1,156 @@
+https://edwarddonner.com/pr/
+
+Part 1 – Preliminaries
+
+Why do we go through all these steps?
+A Pull Request (PR) is the formal way you ask the course maintainers to merge your work into the official repository. It lets everyone review exactly what is being added, where it lands in the file‑tree, and why the change exists. Using PRs instead of e‑mailing files keeps the project history tidy, makes feedback easy, and avoids one person accidentally overwriting another’s work.
+
+Before diving in, you need three mental models:
+
+Two copies of every project
+Remote copy – lives on GitHub.
+Local copy – the folder on your computer that you open in Cursor/Jupyter.
+Two remotes after forking
+origin – your fork (you can push to it).
+upstream – the instructor’s repo (read‑only for you; you can pull from it).
+Two main tasks
+Keep your fork up‑to‑date with the instructor’s repo.
+Propose your changes back to the instructor via a PR.
+Term	Quick meaning	In this workflow you will…
+Repository (repo)	Collection of files tracked by Git	Work inside agents, llm_engineering, etc.
+Clone	Download one remote repo to your computer	Already done.
+Fork	Your own copy of a remote repo on GitHub	Create it after you clone (yes, that order works).
+Remote	Nickname for a remote‑hosted repo	Have origin (= your fork) and upstream (= instructor).
+Branch	Movable label on a series of commits	Create a new branch for each contribution.
+Commit	Saved snapshot with a message	Record each logical step of your work.
+Pull Request (PR)	Proposal to merge one branch into another	Send your branch on origin back to upstream.
+
+Example root paths
+Mac / WSL: /Users/alice/projects/agents
+Windows (PowerShell): C:\Users\alice\projects\agents
+
+Whenever the tutorial says “project root”, use the path that matches your setup.
+
+Part 2 – Forking the repository
+2.1  Check whether you already have a fork
+Open https://github.com/ed-donner/agents (or the relevant repo) in your browser.
+Look at the top‑right: if you see Fork ⇣ with your avatar under “### forks”, you already have a fork.
+If unsure, click the Fork button – GitHub will either create a fork or tell you it exists.
+2.2  Create the fork (if you don’t have one)
+Click Fork → “Create a new fork”.
+Keep default settings and click Create fork.
+You’ll be redirected to https://github.com/<your‑username>/agents.
+2.3  Wire up local remotes
+
+Open a terminal inside the project root.
+
+# Confirm current folder
+pwd           # or 'Get-Location' in PowerShell
+# List existing remotes
+git remote -v
+
+Typical output before wiring up remotes:
+
+origin  https://github.com/ed-donner/agents.git (fetch)
+origin  https://github.com/ed-donner/agents.git (push)
+Add a new remote called upstream
+git remote rename origin upstream
+git remote add origin https://github.com/<your‑username>/agents.git
+git remote -v        # verify
+
+You should now see:
+
+origin    https://github.com/<your‑username>/agents.git (fetch)
+origin    https://github.com/<your‑username>/agents.git (push)
+upstream  https://github.com/ed-donner/agents.git (fetch)
+upstream  https://github.com/ed-donner/agents.git (push)
+
+Already had a fork?
+Just ensure origin points to it and add upstream as above if it’s missing.
+
+Part 3 – Preparing your contribution
+3.1  Create a dedicated branch
+
+Always work on a branch that describes the change:
+
+git checkout -b alice/lab1-solution
+3.2  Move or copy files into the correct folder
+Every section already contains a folder:
+community_contributions/ or community-contributions/.
+Place only new/modified files here.
+Examples:
+section1/community_contributions/alice_lab1_solution.ipynb
+section2/community-contributions/alice_notes.md
+
+How to move a file
+
+Environment	Steps
+Cursor (VS Code)	Drag the file in the Explorer pane into the community_contributions folder, or right‑click → Copy then Paste inside the folder.
+JupyterLab	In the left file browser, drag the file; or right‑click → Move.
+Terminal	mv lab1.ipynb community_contributions/alice_lab1_solution.ipynb (Mac/Linux)  or  move lab1.ipynb community_contributions\alice_lab1_solution.ipynb (Windows).
+3.3  Clear notebook outputs
+Tool	Menu path
+Cursor	Notebook toolbar → ≡ → Clear All Outputs → Save (⌘S / Ctrl S).
+JupyterLab	Edit → Clear All Outputs, then File → Save Notebook.
+
+Confirm by reopening the notebook – no cell should display results.
+
+Part 4 – Add & Commit
+4.1  Status check
+git status
+
+You should see your new/modified files in Untracked files or Modified.
+
+4.2  Stage files one‑by‑one (recommended)
+git add section1/community_contributions/alice_lab1_solution.ipynb
+git status
+
+Verify the file moved to Changes to be committed.
+
+Repeat for each file. If you’re confident all changes belong, you may stage everything at once:
+
+git add community_contributions/         # Mac/Linux
+git add .\community_contributions\       # Windows
+4.3  Commit
+git commit -m "Add Alice's lab 1 solution (cleared outputs)"
+git status
+
+On branch alice/lab1-solution nothing to commit, working tree clean
+means you’re ready.
+
+Part 5 – Push and open the Pull Request
+5.1  Push to your fork
+git push -u origin alice/lab1-solution
+5.2  Create the PR on GitHub
+In the browser, GitHub shows a Compare & pull request banner – click it.
+If you miss the banner: switch to Pull requests tab → New pull request, then set:
+base repository: ed-donner/agents, base branch: main
+head repository: your‑username/agents, compare: alice/lab1-solution
+GitHub displays a file‑diff:
+Expect only green “+” lines (adding new files).
+Path should start with .../community_contributions/ or .../community-contributions/.
+File sizes reasonable (< 1 MB; under ~1000 lines).
+Fill in PR title and description (what the notebook or module contains, any dependencies, etc.).
+Click Create pull request.
+Part 6 – Keep your fork in sync for future work
+Fetch instructor updates:
+git checkout main
+git pull upstream main      # bring your local main up‑to‑date
+git push origin main        # update your fork’s main
+For your next contribution:
+git checkout -b alice/next-improvement main
+# ...work, commit, push, open PR...
+Troubleshooting guide
+Symptom	Cause	Fix
+Files outside community folder appear in PR	Staged by accident	bash\n# unstage\ngit restore --staged path/to/file\n# optionally discard changes\ngit checkout -- path/to/file\n Push again; PR updates automatically.
+Notebook shows large red/green blocks of JSON	Outputs weren’t cleared	Clear outputs → Save → git add the notebook again → git commit --amend (or a new commit) → git push.
+Git refuses to push (non‑fast‑forward)	Local branch behind remote	git pull --rebase origin alice/lab1-solution then push.
+fatal: remote origin already exists when adding remotes	You already set it up	Use git remote -v to confirm URLs; no action needed.
+Accidentally deleted a file in the PR	Deletions are part of commit	Restore file locally, add, commit, push – GitHub will update the PR to show the deletion gone.
+Need to remove an entire file from repo & PR	File shouldn’t be tracked (e.g., large data)	bash\ngit rm --cached path/to/big.csv\n.gitignore it if necessary\n Commit & push.
+Recap 🗝️
+Fork once, branch often.
+Work only in community_contributions/.
+Clear notebook outputs and save.
+Stage, commit, push; open PR; review the diff.
+Keep your fork in sync via upstream.
