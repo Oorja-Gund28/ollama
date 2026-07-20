@@ -1,0 +1,164 @@
+here's a comprehensive tutorial for your students on refreshing their local codebase with updates from the remote GitHub repo, while being mindful of working in notebooks (with saved outputs) and possibly using modules. The structure follows your outline and is geared for students using Cursor on Mac or Windows, with the assumption they don’t want to push changes.
+
+🧠 Keeping Your Code in Sync with the GitHub Repo
+
+Your course materials will regularly get updates, and it's important that you know how to safely refresh your code from the GitHub repo, especially when working with notebooks that might have saved outputs.
+
+Part 1: Preliminaries – What Happens During git pull?
+
+When you run:
+
+git pull
+
+you’re telling Git:
+
+Fetch the latest changes from the remote repository (on GitHub).
+Merge those changes into your current local branch.
+
+This works smoothly if:
+
+You haven't modified the same files.
+Your local copy has no uncommitted changes.
+
+But if you've changed files — especially notebooks with saved outputs — Git will try to merge the differences, which can lead to conflicts.
+
+What’s a merge conflict?
+
+A merge conflict happens when both your local version and the remote version changed the same parts of a file. Git will pause and ask you to fix the conflict manually.
+
+Part 2: The Easy Way – Discard Local Changes and Just Pull
+
+If you’re sure you don’t need your local changes (e.g. you haven’t modified anything important), you can use git stash to temporarily hide your changes, then pull fresh code.
+
+git stash
+git pull
+
+After pulling, if you decide you want your changes back:
+
+git stash pop
+
+💡 You can discard the stash if you don’t need those changes anymore:
+
+git stash drop
+
+✅ Great for: quick sync when you haven’t done much work locally or are okay starting fresh.
+
+Part 3: The Rigorous Way – Merge Your Local Changes Carefully
+
+When you want to keep your local edits (especially if you’ve edited notebooks or modules), follow this process.
+
+🔁 Step-by-step instructions:
+
+Ensure you're in your project folder:
+
+cd path/to/your/cloned/repo
+
+Check your current branch:
+
+git status
+
+You should be on main or a branch like week-2 etc.
+
+Clear notebook outputs (important!)
+In Cursor, right-click your notebook file → "Clear All Outputs", then save the file.
+
+This helps avoid conflicts where only the output changed — a common source of messy diffs.
+
+Commit or stash your local changes (choose one):
+
+Option A – Save your changes:
+
+git add .
+git commit -m "WIP: local changes"
+
+Option B – Temporarily hide changes:
+
+git stash
+
+Pull the latest from GitHub:
+
+git pull origin main
+This will attempt to merge any differences.
+If there are no conflicts, you’re done!
+If there are conflicts, skip to Part 4.
+
+If you stashed earlier, apply your changes:
+
+git stash pop
+(Optional but good): Re-clear outputs and recommit:
+Clear notebook outputs again (to avoid extra changes).
+Re-commit your final state.
+Part 4: Merge Conflicts – How to Resolve Them
+
+If Git reports a conflict, it will mark the conflicted file(s), like this:
+
+Auto-merging notebook.ipynb
+CONFLICT (content): Merge conflict in notebook.ipynb
+🧪 A. Resolving Conflicts in Python Modules
+
+Open the file in Cursor. Git will show:
+
+<<<<<<< HEAD
+your local code
+=======
+their remote code
+>>>>>>> origin/main
+
+Edit the code to keep the right parts, and delete the <<<<<<<, =======, and >>>>>>> markers. Then:
+
+git add filename.py
+📓 B. Resolving Conflicts in Jupyter Notebooks
+
+Notebook merge conflicts are more complex because they are JSON files. Here's what to do:
+
+Option 1: Use nbdev or Jupyter Notebook Diff Tools
+
+If you have nbdime installed (not required, but helpful):
+
+nbdime merge notebook.ipynb
+
+Option 2 (recommended): Decide which version to keep
+
+If you don’t want to manually fix JSON conflicts, do this:
+
+If you want to keep the remote version:
+
+git checkout --theirs notebook.ipynb
+git add notebook.ipynb
+
+If you want to keep your local version:
+
+git checkout --ours notebook.ipynb
+git add notebook.ipynb
+
+After resolving all conflicts:
+
+git commit
+Part 5: Summary & Exercises
+✅ Summary
+Use git stash + git pull for quick updates when you're okay discarding local changes.
+For safe merging:
+Clear notebook outputs before syncing.
+Commit or stash your work.
+Pull, resolve conflicts, then continue.
+Be cautious with notebooks — outputs cause many unwanted changes.
+If things break, don’t panic — use git status and git log to debug.
+🧪 Exercises
+
+Try these in your local clone:
+
+Edit a notebook, add some cells or outputs.
+Run git stash, then git pull — see what happens.
+Create a conflict manually (edit same file, same line) and test how you’d resolve it.
+
+Run:
+
+git status
+
+to confirm you’re clean.
+
+Then:
+
+git log --oneline -n 5
+
+to verify you’re seeing the latest commits.
